@@ -191,6 +191,20 @@
             background: #c82333;
         }
 
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px 0;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+        }
+
         /* Teams Section */
         .teams-container {
             display: grid;
@@ -256,6 +270,47 @@
             margin-right: 10px;
         }
 
+        /* Round Cards */
+        .round-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .round-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .round-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .skins-badge {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .no-skins-badge {
+            background: #e0e0e0;
+            color: #666;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+
         /* Match Play */
         .match-item {
             background: #f9f9f9;
@@ -289,6 +344,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .match-result input {
@@ -533,6 +589,11 @@
             .input-group select {
                 min-width: 100%;
             }
+
+            .round-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -548,7 +609,7 @@
             <div class="tabs">
                 <button class="tab-button active" onclick="switchTab('overview')">📊 Overview</button>
                 <button class="tab-button" onclick="switchTab('teams')">👥 Teams</button>
-                <button class="tab-button" onclick="switchTab('matches')">🏌️ Match Play</button>
+                <button class="tab-button" onclick="switchTab('rounds')">🏌️ Rounds</button>
                 <button class="tab-button" onclick="switchTab('expenses')">💰 Expenses</button>
                 <button class="tab-button" onclick="switchTab('comments')">💬 Comments</button>
             </div>
@@ -632,46 +693,25 @@
                 </div>
             </div>
 
-            <!-- TAB 3: MATCH PLAY -->
-            <div id="matches" class="tab-content">
+            <!-- TAB 3: ROUNDS & MATCH PLAY -->
+            <div id="rounds" class="tab-content">
                 <div class="section">
-                    <h2>Match Play Events</h2>
+                    <h2>Rounds & Match Play</h2>
                     
-                    <h3>Create Match</h3>
+                    <h3>Create New Round</h3>
                     <div class="input-group">
-                        <select id="matchCourse">
+                        <input type="text" id="roundName" placeholder="Round name (e.g., Friday Morning)">
+                        <select id="roundCourse">
                             <option value="">Select Course</option>
-                            <option value="Course 1">Course 1</option>
                         </select>
-                        <input type="text" id="matchDate" placeholder="Date/Round">
-                        <select id="matchType">
-                            <option value="1v1">1v1 (Singles)</option>
-                            <option value="2v2">2v2 (Foursomes)</option>
-                            <option value="best-ball">Best Ball</option>
-                        </select>
-                        <button onclick="showMatchForm()">Create Match</button>
+                        <label class="checkbox-label" style="flex: 1;">
+                            <input type="checkbox" id="hasSkins" checked>
+                            <span>🏆 This round has a Skins Game</span>
+                        </label>
+                        <button onclick="addRound()">Create Round</button>
                     </div>
 
-                    <div id="matchFormContainer" style="display: none; margin: 20px 0; padding: 20px; background: #f5f5f5; border-radius: 8px;">
-                        <h3>Match Details</h3>
-                        <div class="input-group">
-                            <select id="player1" placeholder="Player 1">
-                                <option value="">Select Player 1</option>
-                            </select>
-                            <select id="player2" placeholder="Player 2">
-                                <option value="">Select Player 2</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <input type="number" id="score1" placeholder="Score 1" min="0" max="150">
-                            <input type="number" id="score2" placeholder="Score 2" min="0" max="150">
-                        </div>
-                        <button onclick="saveMatch()">Save Match</button>
-                        <button class="secondary" onclick="cancelMatch()">Cancel</button>
-                    </div>
-
-                    <h3>Scheduled Matches</h3>
-                    <div id="matchesList" class="section"></div>
+                    <div id="roundsList"></div>
                 </div>
             </div>
 
@@ -759,6 +799,7 @@
             PLAYERS: 'nisswa_players',
             COURSES: 'nisswa_courses',
             NOTES: 'nisswa_notes',
+            ROUNDS: 'nisswa_rounds',
             MATCHES: 'nisswa_matches',
             COMMENTS: 'nisswa_comments',
             EXPENSES: 'nisswa_expenses'
@@ -769,7 +810,7 @@
             loadAllData();
             renderTeams();
             renderCourses();
-            renderMatches();
+            renderRounds();
             renderComments();
             renderExpenses();
             updatePlayerSelects();
@@ -778,7 +819,6 @@
 
         // ===== TAB SWITCHING =====
         function switchTab(tabName) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -786,7 +826,6 @@
                 btn.classList.remove('active');
             });
 
-            // Show selected tab
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
         }
@@ -910,15 +949,8 @@
 
         function updatePlayerSelects() {
             const players = JSON.parse(localStorage.getItem(STORAGE_KEYS.PLAYERS)) || [];
-            const player1Select = document.getElementById('player1');
-            const player2Select = document.getElementById('player2');
             const expensePaidBySelect = document.getElementById('expensePaidBy');
-
-            const playerOptions = players.map(p => `<option value="${p.id}">${p.name} (${p.team === 'blue' ? '🔵' : '🔴'}) HCP: ${p.handicap}</option>`).join('');
             const expenseOptions = players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-
-            player1Select.innerHTML = '<option value="">Select Player 1</option>' + playerOptions;
-            player2Select.innerHTML = '<option value="">Select Player 2</option>' + playerOptions;
             expensePaidBySelect.innerHTML = '<option value="">Who paid?</option>' + expenseOptions;
         }
 
@@ -979,46 +1011,147 @@
 
         function updateCourseSelects() {
             const courses = JSON.parse(localStorage.getItem(STORAGE_KEYS.COURSES)) || [];
-            const courseSelect = document.getElementById('matchCourse');
+            const courseSelect = document.getElementById('roundCourse');
             const options = courses.map(c => `<option value="${c.id}">${c.name} - ${c.date}</option>`).join('');
             courseSelect.innerHTML = '<option value="">Select Course</option>' + options;
         }
 
-        // ===== MATCH PLAY =====
-        function showMatchForm() {
-            document.getElementById('matchFormContainer').style.display = 'block';
-        }
+        // ===== ROUNDS & MATCH PLAY =====
+        function addRound() {
+            const roundName = document.getElementById('roundName').value.trim();
+            const courseId = document.getElementById('roundCourse').value;
+            const hasSkins = document.getElementById('hasSkins').checked;
 
-        function cancelMatch() {
-            document.getElementById('matchFormContainer').style.display = 'none';
-            document.getElementById('score1').value = '';
-            document.getElementById('score2').value = '';
-        }
-
-        function saveMatch() {
-            const courseId = document.getElementById('matchCourse').value;
-            const courseSelect = document.getElementById('matchCourse');
-            const courseName = courseSelect.options[courseSelect.selectedIndex].text;
-            const matchDate = document.getElementById('matchDate').value.trim();
-            const matchType = document.getElementById('matchType').value;
-            const player1Id = document.getElementById('player1').value;
-            const player2Id = document.getElementById('player2').value;
-            const score1 = parseInt(document.getElementById('score1').value);
-            const score2 = parseInt(document.getElementById('score2').value);
-
-            if (!courseId || !matchDate || !player1Id || !player2Id) {
-                alert('Please fill in all required fields');
+            if (!roundName || !courseId) {
+                alert('Please enter round name and select a course');
                 return;
             }
 
-            if (isNaN(score1) || isNaN(score2)) {
-                alert('Please enter valid scores');
+            const courses = JSON.parse(localStorage.getItem(STORAGE_KEYS.COURSES)) || [];
+            const course = courses.find(c => c.id == courseId);
+
+            const rounds = JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUNDS)) || [];
+            rounds.push({
+                id: Date.now(),
+                name: roundName,
+                courseId: courseId,
+                courseName: course.name,
+                hasSkins: hasSkins
+            });
+
+            localStorage.setItem(STORAGE_KEYS.ROUNDS, JSON.stringify(rounds));
+            document.getElementById('roundName').value = '';
+            document.getElementById('roundCourse').value = '';
+            document.getElementById('hasSkins').checked = true;
+            renderRounds();
+            updateTripStats();
+        }
+
+        function removeRound(id) {
+            const rounds = JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUNDS)) || [];
+            const filtered = rounds.filter(r => r.id !== id);
+            localStorage.setItem(STORAGE_KEYS.ROUNDS, JSON.stringify(filtered));
+
+            const matches = JSON.parse(localStorage.getItem(STORAGE_KEYS.MATCHES)) || [];
+            const filteredMatches = matches.filter(m => m.roundId !== id);
+            localStorage.setItem(STORAGE_KEYS.MATCHES, JSON.stringify(filteredMatches));
+
+            renderRounds();
+            updateTripStats();
+        }
+
+        function renderRounds() {
+            const rounds = JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUNDS)) || [];
+            const players = JSON.parse(localStorage.getItem(STORAGE_KEYS.PLAYERS)) || [];
+            const container = document.getElementById('roundsList');
+
+            if (rounds.length === 0) {
+                container.innerHTML = '<div class="empty-state">No rounds created yet.</div>';
+                return;
+            }
+
+            container.innerHTML = rounds.map(round => {
+                const matches = (JSON.parse(localStorage.getItem(STORAGE_KEYS.MATCHES)) || []).filter(m => m.roundId === round.id);
+                const playerOptions = players.map(p => `<option value="${p.id}">${p.name} (${p.team === 'blue' ? '🔵' : '🔴'}) HCP: ${p.handicap}</option>`).join('');
+
+                return `
+                    <div class="round-card">
+                        <div class="round-header">
+                            <div>
+                                <div class="round-title">${round.name}</div>
+                                <div style="font-size: 0.9em; color: #666; margin-top: 5px;">📍 ${round.courseName}</div>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                ${round.hasSkins ? '<span class="skins-badge">🏆 Skins Game</span>' : '<span class="no-skins-badge">No Skins</span>'}
+                                <button class="delete" onclick="removeRound(${round.id})">Delete</button>
+                            </div>
+                        </div>
+
+                        <h4 style="margin-top: 20px; margin-bottom: 10px; color: #333;">Add Match</h4>
+                        <div class="input-group">
+                            <select onchange="window.currentRoundId = ${round.id}">
+                                <option value="">Player 1</option>
+                                ${playerOptions}
+                            </select>
+                            <select id="matchPlayer2_${round.id}">
+                                <option value="">Player 2</option>
+                                ${playerOptions}
+                            </select>
+                            <input type="number" id="matchScore1_${round.id}" placeholder="Score" min="0" max="150">
+                            <input type="number" id="matchScore2_${round.id}" placeholder="Score" min="0" max="150">
+                            <button onclick="saveMatchToRound(${round.id})">Add Match</button>
+                        </div>
+
+                        ${matches.length > 0 ? `
+                            <h4 style="margin-top: 20px; margin-bottom: 10px; color: #333;">Matches</h4>
+                            ${matches.map(m => `
+                                <div class="match-item">
+                                    <div class="match-players">
+                                        <span style="color: ${m.player1Team === 'blue' ? '#2c5aa0' : '#dc3545'}">🔵 ${m.player1Name}</span>
+                                        vs
+                                        <span style="color: ${m.player2Team === 'blue' ? '#2c5aa0' : '#dc3545'}">🔴 ${m.player2Name}</span>
+                                    </div>
+                                    <div class="match-result">
+                                        <span>${m.score1}</span>
+                                        <span>-</span>
+                                        <span>${m.score2}</span>
+                                        <span class="match-status complete">${m.winner === m.player1Id ? m.player1Name + ' wins' : (m.winner === m.player2Id ? m.player2Name + ' wins' : 'Tie')}</span>
+                                        ${m.hasSkins ? '<span style="color: #ffd700; font-weight: bold;">🏆 Skins</span>' : ''}
+                                        <button class="delete" onclick="removeMatch(${m.id})">Delete</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function saveMatchToRound(roundId) {
+            const player1Id = window.currentRoundId === roundId ? event.target.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.value : null;
+            const player2Select = document.getElementById(`matchPlayer2_${roundId}`);
+            const score1Input = document.getElementById(`matchScore1_${roundId}`);
+            const score2Input = document.getElementById(`matchScore2_${roundId}`);
+
+            const player2Id = player2Select.value;
+            const score1 = parseInt(score1Input.value);
+            const score2 = parseInt(score2Input.value);
+
+            if (!player2Id || isNaN(score1) || isNaN(score2)) {
+                alert('Please select both players and enter valid scores');
                 return;
             }
 
             const players = JSON.parse(localStorage.getItem(STORAGE_KEYS.PLAYERS)) || [];
+            const rounds = JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUNDS)) || [];
+            const round = rounds.find(r => r.id === roundId);
             const p1 = players.find(p => p.id == player1Id);
             const p2 = players.find(p => p.id == player2Id);
+
+            if (!p1) {
+                alert('Please select Player 1 from the dropdown');
+                return;
+            }
 
             if (p1.team === p2.team) {
                 alert('Players must be from different teams');
@@ -1026,14 +1159,11 @@
             }
 
             const matches = JSON.parse(localStorage.getItem(STORAGE_KEYS.MATCHES)) || [];
-            const handicapDiff = Math.abs(p1.handicap - p2.handicap);
             const winner = score1 < score2 ? p1.id : (score2 < score1 ? p2.id : null);
 
             matches.push({
                 id: Date.now(),
-                courseName: courseName,
-                date: matchDate,
-                type: matchType,
+                roundId: roundId,
                 player1Id: p1.id,
                 player1Name: p1.name,
                 player1Team: p1.team,
@@ -1042,13 +1172,15 @@
                 player2Team: p2.team,
                 score1: score1,
                 score2: score2,
-                handicapDiff: handicapDiff,
-                winner: winner
+                winner: winner,
+                hasSkins: round.hasSkins
             });
 
             localStorage.setItem(STORAGE_KEYS.MATCHES, JSON.stringify(matches));
-            cancelMatch();
-            renderMatches();
+            score1Input.value = '';
+            score2Input.value = '';
+            player2Select.value = '';
+            renderRounds();
             updateTripStats();
         }
 
@@ -1056,42 +1188,8 @@
             const matches = JSON.parse(localStorage.getItem(STORAGE_KEYS.MATCHES)) || [];
             const filtered = matches.filter(m => m.id !== id);
             localStorage.setItem(STORAGE_KEYS.MATCHES, JSON.stringify(filtered));
-            renderMatches();
+            renderRounds();
             updateTripStats();
-        }
-
-        function renderMatches() {
-            const matches = JSON.parse(localStorage.getItem(STORAGE_KEYS.MATCHES)) || [];
-            const container = document.getElementById('matchesList');
-
-            if (matches.length === 0) {
-                container.innerHTML = '<div class="empty-state">No matches scheduled yet.</div>';
-                return;
-            }
-
-            container.innerHTML = matches.map(m => {
-                const resultText = m.winner === m.player1Id ? `${m.player1Name} wins` : (m.winner === m.player2Id ? `${m.player2Name} wins` : 'Tie');
-                const resultTeam = m.winner === m.player1Id ? 'Blue' : (m.winner === m.player2Id ? 'Red' : 'Tie');
-
-                return `
-                    <div class="match-item">
-                        <div class="match-course">📍 ${m.courseName} • ${m.date} • ${m.type}</div>
-                        <div class="match-players">
-                            <span style="color: ${m.player1Team === 'blue' ? '#2c5aa0' : '#dc3545'}">🔵 ${m.player1Name}</span>
-                            vs
-                            <span style="color: ${m.player2Team === 'blue' ? '#2c5aa0' : '#dc3545'}">🔴 ${m.player2Name}</span>
-                        </div>
-                        <div class="match-result">
-                            <span>${m.score1}</span>
-                            <span>-</span>
-                            <span>${m.score2}</span>
-                            <span class="match-status complete">${resultText}</span>
-                            <span style="font-size: 0.9em; color: #666;">(HCP: ${m.handicapDiff.toFixed(1)})</span>
-                            <button class="delete" onclick="removeMatch(${m.id})">Delete</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
 
         // ===== EXPENSES =====
@@ -1146,7 +1244,6 @@
                 return;
             }
 
-            // Calculate summaries
             const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
             const perPerson = players.length > 0 ? totalExpenses / players.length : 0;
             const largestExpense = Math.max(...expenses.map(e => e.amount));
@@ -1179,11 +1276,9 @@
                 return;
             }
 
-            // Calculate total spent by each player
             const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
             const perPerson = totalExpenses / players.length;
 
-            // Calculate balance for each player (what they paid - what they owe)
             const balances = {};
             players.forEach(p => {
                 balances[p.id] = {
@@ -1202,7 +1297,6 @@
                 balances[id].balance = balances[id].paid - balances[id].owes;
             });
 
-            // Calculate settlements (who pays whom)
             const settlements = [];
             const debtors = Object.keys(balances).filter(id => balances[id].balance < 0);
             const creditors = Object.keys(balances).filter(id => balances[id].balance > 0);
@@ -1267,7 +1361,6 @@
                 return;
             }
 
-            // Show newest comments first
             container.innerHTML = comments.reverse().map(c => `
                 <div class="comment-item">
                     <div class="comment-author">${c.author}</div>
@@ -1281,6 +1374,7 @@
         function updateTripStats() {
             const players = JSON.parse(localStorage.getItem(STORAGE_KEYS.PLAYERS)) || [];
             const courses = JSON.parse(localStorage.getItem(STORAGE_KEYS.COURSES)) || [];
+            const rounds = JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUNDS)) || [];
             const matches = JSON.parse(localStorage.getItem(STORAGE_KEYS.MATCHES)) || [];
             const expenses = JSON.parse(localStorage.getItem(STORAGE_KEYS.EXPENSES)) || [];
 
@@ -1293,6 +1387,7 @@
                             matches.filter(m => m.winner === m.player2Id && m.player2Team === 'red').length;
 
             const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+            const skinsRounds = rounds.filter(r => r.hasSkins).length;
 
             const statsContainer = document.getElementById('tripStats');
             statsContainer.innerHTML = `
@@ -1313,12 +1408,16 @@
                     <div class="stat-label">Red Wins</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">${courses.length}</div>
-                    <div class="stat-label">Courses</div>
+                    <div class="stat-value">${rounds.length}</div>
+                    <div class="stat-label">Rounds</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value">${matches.length}</div>
                     <div class="stat-label">Matches Played</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${skinsRounds}</div>
+                    <div class="stat-label">🏆 Skins Rounds</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value">$${totalExpenses.toFixed(2)}</div>
@@ -1332,6 +1431,7 @@
             const trip = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRIP)) || {};
             const players = JSON.parse(localStorage.getItem(STORAGE_KEYS.PLAYERS)) || [];
             const courses = JSON.parse(localStorage.getItem(STORAGE_KEYS.COURSES)) || [];
+            const rounds = JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUNDS)) || [];
             const matches = JSON.parse(localStorage.getItem(STORAGE_KEYS.MATCHES)) || [];
             const comments = JSON.parse(localStorage.getItem(STORAGE_KEYS.COMMENTS)) || [];
             const expenses = JSON.parse(localStorage.getItem(STORAGE_KEYS.EXPENSES)) || [];
@@ -1341,6 +1441,7 @@
                 trip,
                 players,
                 courses,
+                rounds,
                 matches,
                 comments,
                 expenses,
@@ -1359,14 +1460,10 @@
         }
 
         function clearAllData() {
-            if (confirm('Are you sure? This will delete ALL data (Teams, matches, comments, expenses, scores, and notes).')) {
-                localStorage.removeItem(STORAGE_KEYS.TRIP);
-                localStorage.removeItem(STORAGE_KEYS.PLAYERS);
-                localStorage.removeItem(STORAGE_KEYS.COURSES);
-                localStorage.removeItem(STORAGE_KEYS.NOTES);
-                localStorage.removeItem(STORAGE_KEYS.MATCHES);
-                localStorage.removeItem(STORAGE_KEYS.COMMENTS);
-                localStorage.removeItem(STORAGE_KEYS.EXPENSES);
+            if (confirm('Are you sure? This will delete ALL data.')) {
+                Object.values(STORAGE_KEYS).forEach(key => {
+                    localStorage.removeItem(key);
+                });
                 location.reload();
             }
         }
