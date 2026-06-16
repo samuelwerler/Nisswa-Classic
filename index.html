@@ -1,1558 +1,517 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nisswa Classic - Ryder Cup Style Golf Trip</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        header {
-            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 5px;
-        }
-
-        header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .loading-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #2c5aa0;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            z-index: 1000;
-        }
-
-        .loading-indicator.synced {
-            background: #28a745;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .section h2 {
-            color: #2c5aa0;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #2c5aa0;
-            padding-bottom: 10px;
-        }
-
-        .section h3 {
-            color: #555;
-            margin-top: 20px;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-
-        /* Tab Navigation */
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .tab-button {
-            background: #f0f0f0;
-            border: none;
-            padding: 12px 20px;
-            cursor: pointer;
-            border-radius: 4px 4px 0 0;
-            font-size: 1em;
-            transition: all 0.3s;
-            color: #333;
-        }
-
-        .tab-button:hover {
-            background: #e0e0e0;
-        }
-
-        .tab-button.active {
-            background: #2c5aa0;
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .trip-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .detail-box {
-            background: #f5f5f5;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #2c5aa0;
-        }
-
-        .detail-box label {
-            display: block;
-            font-weight: bold;
-            color: #2c5aa0;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-        }
-
-        .detail-box input,
-        .detail-box textarea,
-        .detail-box select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: inherit;
-            font-size: 1em;
-        }
-
-        .detail-box input:focus,
-        .detail-box textarea:focus,
-        .detail-box select:focus {
-            outline: none;
-            border-color: #2c5aa0;
-            box-shadow: 0 0 5px rgba(44, 90, 160, 0.3);
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .input-group input,
-        .input-group select {
-            flex: 1;
-            min-width: 150px;
-        }
-
-        button {
-            background: #2c5aa0;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background 0.3s;
-            white-space: nowrap;
-        }
-
-        button:hover {
-            background: #1e3a5f;
-        }
-
-        button.secondary {
-            background: #6c757d;
-        }
-
-        button.secondary:hover {
-            background: #5a6268;
-        }
-
-        button.delete {
-            background: #dc3545;
-            padding: 5px 10px;
-            font-size: 0.9em;
-        }
-
-        button.delete:hover {
-            background: #c82333;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            font-size: 1em;
-            margin: 10px 0;
-        }
-
-        .checkbox-label input[type="checkbox"] {
-            width: auto;
-            cursor: pointer;
-        }
-
-        /* Teams Section */
-        .teams-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .team-box {
-            border: 3px solid #2c5aa0;
-            border-radius: 8px;
-            padding: 20px;
-            background: #f9f9f9;
-        }
-
-        .team-box.team-red {
-            border-color: #dc3545;
-        }
-
-        .team-header {
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid inherit;
-            color: #2c5aa0;
-        }
-
-        .team-box.team-red .team-header {
-            color: #dc3545;
-        }
-
-        .team-players {
-            list-style: none;
-        }
-
-        .team-player-item {
-            background: white;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            border-left: 4px solid #2c5aa0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .team-box.team-red .team-player-item {
-            border-left-color: #dc3545;
-        }
-
-        .player-name {
-            font-weight: bold;
-            flex: 1;
-        }
-
-        .player-handicap {
-            background: #e0e0e0;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            margin-right: 10px;
-        }
-
-        /* Round Cards */
-        .round-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .round-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .round-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .skins-badge {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #333;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }
-
-        .no-skins-badge {
-            background: #e0e0e0;
-            color: #666;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-        }
-
-        /* Match Play */
-        .match-item {
-            background: #f9f9f9;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #2c5aa0;
-        }
-
-        .match-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-
-        .match-players {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .match-course {
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 8px;
-        }
-
-        .match-result {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .match-result input {
-            width: 80px;
-        }
-
-        .match-status {
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-
-        .match-status.pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .match-status.complete {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        /* Expenses Section */
-        .expense-item {
-            background: #f9f9f9;
-            padding: 15px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #2c5aa0;
-            display: grid;
-            grid-template-columns: 1fr auto auto;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .expense-details {
-            flex: 1;
-        }
-
-        .expense-category {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 4px;
-        }
-
-        .expense-info {
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .expense-amount {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #2c5aa0;
-            min-width: 80px;
-            text-align: right;
-        }
-
-        .settlement-box {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border: 2px solid #28a745;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .settlement-item {
-            padding: 8px 0;
-            font-size: 1em;
-            color: #155724;
-            border-bottom: 1px solid rgba(40, 167, 69, 0.2);
-        }
-
-        .settlement-item:last-child {
-            border-bottom: none;
-        }
-
-        .settlement-amount {
-            font-weight: bold;
-            color: #155724;
-        }
-
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .summary-card {
-            background: #f9f9f9;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .summary-card h4 {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
-
-        .summary-card .amount {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #2c5aa0;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .stat-card.team-red {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-        }
-
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-
-        /* Comments Section */
-        .comments-container {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .comment-item {
-            background: white;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            border-left: 4px solid #2c5aa0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .comment-author {
-            font-weight: bold;
-            color: #2c5aa0;
-            font-size: 0.9em;
-        }
-
-        .comment-time {
-            font-size: 0.85em;
-            color: #999;
-            margin-top: 5px;
-        }
-
-        .comment-text {
-            margin-top: 8px;
-            color: #333;
-            line-height: 1.4;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-
-        @media (max-width: 1024px) {
-            .teams-container {
-                grid-template-columns: 1fr;
-            }
-
-            .expense-item {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.8em;
-            }
-
-            .tabs {
-                gap: 5px;
-            }
-
-            .tab-button {
-                padding: 10px 15px;
-                font-size: 0.9em;
-            }
-
-            .trip-details {
-                grid-template-columns: 1fr;
-            }
-
-            .input-group {
-                flex-direction: column;
-            }
-
-            .input-group input,
-            .input-group select {
-                min-width: 100%;
-            }
-
-            .round-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nisswa Classic - Tournament Central</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg,#234f8f,#143454); min-height: 100vh; padding: 18px; color:#222; }
+    .container { max-width: 1500px; margin: 0 auto; background: #fff; border-radius: 14px; box-shadow: 0 12px 45px rgba(0,0,0,.32); overflow: hidden; }
+    header { background: linear-gradient(135deg,#234f8f,#143454); color:#fff; padding: 30px 20px; text-align:center; }
+    header h1 { font-size: clamp(2rem, 4vw, 3.2rem); margin-bottom: 6px; }
+    header p { opacity:.92; font-size: 1.05rem; }
+    .sync { position: fixed; top: 16px; right: 16px; background:#234f8f; color:#fff; padding: 10px 14px; border-radius: 999px; font-size:.9rem; z-index: 20; box-shadow:0 4px 10px rgba(0,0,0,.25); }
+    .sync.ok { background:#20844b; }
+    .sync.err { background:#b02a37; }
+    .content { padding: 24px; }
+    .tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 24px; border-bottom: 2px solid #e8edf3; }
+    .tab-button { border:0; padding: 11px 16px; border-radius: 8px 8px 0 0; background:#eef2f6; color:#223; cursor:pointer; font-weight:600; }
+    .tab-button.active { background:#234f8f; color:#fff; }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .section { margin-bottom: 32px; }
+    h2 { color:#234f8f; margin-bottom: 16px; border-bottom: 2px solid #234f8f; padding-bottom: 8px; }
+    h3 { margin: 18px 0 10px; color:#444; }
+    .grid { display:grid; gap:16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .card, .detail-box { background:#f7f9fc; border:1px solid #e3e8ef; border-left: 4px solid #234f8f; border-radius: 10px; padding: 16px; }
+    .red-border { border-left-color:#dc3545; }
+    label { display:block; font-weight:700; color:#234f8f; margin-bottom: 6px; font-size:.92rem; }
+    input, select, textarea { width:100%; padding: 10px; border:1px solid #cad2dc; border-radius: 7px; font-family: inherit; font-size: 1rem; background:#fff; }
+    input:focus, select:focus, textarea:focus { outline:none; border-color:#234f8f; box-shadow:0 0 0 3px rgba(35,79,143,.15); }
+    .input-row { display:flex; gap:10px; align-items:end; flex-wrap:wrap; margin-bottom: 14px; }
+    .input-row > * { flex:1; min-width: 150px; }
+    button { background:#234f8f; color:#fff; border:0; border-radius:7px; padding: 10px 14px; cursor:pointer; font-weight:700; white-space:nowrap; }
+    button:hover { background:#143454; }
+    button.secondary { background:#6c757d; }
+    button.delete { background:#dc3545; padding: 7px 10px; font-size:.86rem; }
+    .empty { text-align:center; color:#8a94a3; padding: 24px; }
+    .stat-card { background:linear-gradient(135deg,#234f8f,#143454); color:#fff; padding:18px; border-radius:12px; text-align:center; }
+    .stat-card.red { background:linear-gradient(135deg,#dc3545,#a71d2a); }
+    .stat-value { font-size:2rem; font-weight:900; }
+    .stat-label { opacity:.9; font-size:.9rem; }
+    .team-box { border:3px solid #234f8f; border-radius:12px; padding:16px; background:#f7f9fc; }
+    .team-box.red { border-color:#dc3545; }
+    .player-item, .course-item, .expense-item, .comment-item, .round-item { background:#fff; border-radius:9px; padding:12px; margin-bottom:10px; border-left:4px solid #234f8f; box-shadow:0 2px 7px rgba(0,0,0,.08); display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .team-box.red .player-item { border-left-color:#dc3545; }
+    .pill { display:inline-block; padding:4px 9px; border-radius:999px; background:#e8edf3; font-size:.85rem; font-weight:700; }
+    .pill.blue { background:#dbe9ff; color:#234f8f; }
+    .pill.red { background:#ffe1e5; color:#b02a37; }
+    .leader { font-size: 1.25rem; font-weight:900; }
+    .scorecard-wrap { overflow-x:auto; border:1px solid #e3e8ef; border-radius:10px; }
+    table { width:100%; border-collapse:collapse; background:#fff; }
+    th, td { border-bottom:1px solid #e3e8ef; padding:8px; text-align:center; white-space:nowrap; }
+    th { background:#eef2f6; color:#234f8f; font-size:.9rem; }
+    td:first-child, th:first-child { text-align:left; position:sticky; left:0; background:inherit; z-index:1; min-width:150px; }
+    .score-input { width:54px; padding:6px; text-align:center; }
+    .mini { font-size:.82rem; color:#687282; }
+    .gross { font-weight:900; }
+    .net { color:#234f8f; font-weight:900; }
+    .skin { background:#fff3cd; font-weight:900; }
+    .win-blue { color:#234f8f; font-weight:900; }
+    .win-red { color:#dc3545; font-weight:900; }
+    .settlement-box { background:#eaf6ee; border:1px solid #9ed3ae; border-radius:10px; padding:12px; }
+    @media (max-width: 900px) { .grid.two,.grid.three,.grid.four { grid-template-columns:1fr; } body { padding:8px; } .content { padding:14px; } .sync { position: static; margin-bottom:8px; display:inline-block; } }
+  </style>
 </head>
 <body>
-    <div class="loading-indicator" id="syncStatus">🔄 Connecting...</div>
+  <div class="sync" id="syncStatus">🔄 Connecting...</div>
+  <div class="container">
+    <header>
+      <h1 id="siteTitle">⛳ Nisswa Classic</h1>
+      <p>Tournament Central • Live Scoring • Skins • Leaderboard</p>
+    </header>
+    <main class="content">
+      <nav class="tabs">
+        <button class="tab-button active" data-tab="home">🏠 Home</button>
+        <button class="tab-button" data-tab="itinerary">📅 Itinerary</button>
+        <button class="tab-button" data-tab="teams">👥 Teams</button>
+        <button class="tab-button" data-tab="scoring">⛳ Live Scoring</button>
+        <button class="tab-button" data-tab="leaderboard">🏆 Leaderboard</button>
+        <button class="tab-button" data-tab="sidegames">💵 Side Games</button>
+        <button class="tab-button" data-tab="expenses">💰 Expenses</button>
+        <button class="tab-button" data-tab="chat">💬 Chat</button>
+      </nav>
 
-    <div class="container">
-        <header>
-            <h1>⛳ Nisswa Classic</h1>
-            <p>Ryder Cup Style Golf Trip Manager</p>
-        </header>
-
-        <div class="content">
-            <!-- Navigation Tabs -->
-            <div class="tabs">
-                <button class="tab-button active" onclick="switchTab('overview')">📊 Overview</button>
-                <button class="tab-button" onclick="switchTab('teams')">👥 Teams</button>
-                <button class="tab-button" onclick="switchTab('rounds')">🏌️ Rounds</button>
-                <button class="tab-button" onclick="switchTab('expenses')">💰 Expenses</button>
-                <button class="tab-button" onclick="switchTab('comments')">💬 Comments</button>
-            </div>
-
-            <!-- TAB 1: OVERVIEW -->
-            <div id="overview" class="tab-content active">
-                <div class="section">
-                    <h2>Trip Overview</h2>
-                    <div class="trip-details">
-                        <div class="detail-box">
-                            <label>Trip Name</label>
-                            <input type="text" id="tripName" placeholder="e.g., Nisswa Classic 2026" value="Nisswa Classic 2026">
-                        </div>
-                        <div class="detail-box">
-                            <label>Location</label>
-                            <input type="text" id="location" placeholder="e.g., Nisswa, Minnesota" value="Nisswa, Minnesota">
-                        </div>
-                        <div class="detail-box">
-                            <label>Start Date</label>
-                            <input type="date" id="startDate">
-                        </div>
-                        <div class="detail-box">
-                            <label>End Date</label>
-                            <input type="date" id="endDate">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h2>Trip Statistics</h2>
-                    <div class="stats" id="tripStats"></div>
-                </div>
-
-                <div class="section">
-                    <h2>Golf Courses</h2>
-                    <div class="input-group">
-                        <input type="text" id="courseName" placeholder="Course name">
-                        <input type="text" id="courseDate" placeholder="Date (e.g., Friday, June 20)">
-                        <input type="text" id="courseTime" placeholder="Tee time (e.g., 8:00 AM)">
-                        <button onclick="addCourse()">Add Course</button>
-                    </div>
-                    <ul class="courses-list" id="coursesList"></ul>
-                </div>
-
-                <div class="section">
-                    <h2>Trip Notes</h2>
-                    <div class="detail-box">
-                        <label>General Notes & Updates</label>
-                        <textarea id="tripNotes" placeholder="Add any important notes, reminders, or updates for the group..." rows="6" style="resize: vertical;"></textarea>
-                        <button onclick="saveNotes()" style="margin-top: 10px;">Save Notes</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 2: TEAMS -->
-            <div id="teams" class="tab-content">
-                <div class="section">
-                    <h2>Team Management</h2>
-                    
-                    <h3>Add Players to Teams</h3>
-                    <div class="input-group">
-                        <input type="text" id="playerName" placeholder="Player name">
-                        <input type="number" id="playerHandicap" placeholder="Handicap" min="0" max="36" step="0.1">
-                        <select id="playerTeam">
-                            <option value="blue">Blue Team</option>
-                            <option value="red">Red Team</option>
-                        </select>
-                        <button onclick="addPlayer()">Add Player</button>
-                    </div>
-
-                    <div class="teams-container">
-                        <div class="team-box">
-                            <div class="team-header">🔵 Blue Team</div>
-                            <ul class="team-players" id="blueTeamList"></ul>
-                        </div>
-                        <div class="team-box team-red">
-                            <div class="team-header">🔴 Red Team</div>
-                            <ul class="team-players" id="redTeamList"></ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 3: ROUNDS & MATCH PLAY -->
-            <div id="rounds" class="tab-content">
-                <div class="section">
-                    <h2>Rounds & Match Play</h2>
-                    
-                    <h3>Create New Round</h3>
-                    <div class="input-group">
-                        <input type="text" id="roundName" placeholder="Round name (e.g., Friday Morning)">
-                        <select id="roundCourse">
-                            <option value="">Select Course</option>
-                        </select>
-                        <label class="checkbox-label" style="flex: 1;">
-                            <input type="checkbox" id="hasSkins" checked>
-                            <span>🏆 This round has a Skins Game</span>
-                        </label>
-                        <button onclick="addRound()">Create Round</button>
-                    </div>
-
-                    <div id="roundsList"></div>
-                </div>
-            </div>
-
-            <!-- TAB 4: EXPENSES -->
-            <div id="expenses" class="tab-content">
-                <div class="section">
-                    <h2>Expense Tracking & Settlement</h2>
-                    
-                    <h3>Add Expense</h3>
-                    <div class="input-group">
-                        <select id="expenseCategory">
-                            <option value="Greens Fees">⛳ Greens Fees</option>
-                            <option value="Carts">🛒 Cart Rentals</option>
-                            <option value="Food">🍽️ Food & Drinks</option>
-                            <option value="Lodging">🏨 Lodging</option>
-                            <option value="Transportation">🚗 Transportation</option>
-                            <option value="Activities">🎉 Activities</option>
-                            <option value="Other">📝 Other</option>
-                        </select>
-                        <input type="number" id="expenseAmount" placeholder="Amount" min="0" step="0.01">
-                        <select id="expensePaidBy">
-                            <option value="">Who paid?</option>
-                        </select>
-                        <button onclick="addExpense()">Add Expense</button>
-                    </div>
-
-                    <div class="summary-cards">
-                        <div class="summary-card">
-                            <h4>Total Expenses</h4>
-                            <div class="amount" id="totalExpenses">$0.00</div>
-                        </div>
-                        <div class="summary-card">
-                            <h4>Per Person</h4>
-                            <div class="amount" id="perPersonExpense">$0.00</div>
-                        </div>
-                        <div class="summary-card">
-                            <h4>Largest Expense</h4>
-                            <div class="amount" id="largestExpense">$0.00</div>
-                        </div>
-                    </div>
-
-                    <h3>Expense Breakdown</h3>
-                    <div id="expensesList"></div>
-
-                    <h3>🎯 Settlement Summary</h3>
-                    <p style="color: #666; margin-bottom: 15px;">Who owes whom based on shared expenses:</p>
-                    <div class="settlement-box" id="settlementBox">
-                        <div class="empty-state">Add expenses to calculate settlements</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 5: COMMENTS -->
-            <div id="comments" class="tab-content">
-                <div class="section">
-                    <h2>Group Comments & Chat</h2>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <div class="input-group">
-                            <input type="text" id="commentAuthor" placeholder="Your name">
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <textarea id="commentText" placeholder="Share updates, jokes, or important info with the group..." rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 1em;"></textarea>
-                        </div>
-                        <button onclick="addComment()" style="margin-top: 10px;">Post Comment</button>
-                    </div>
-
-                    <h3>Recent Comments</h3>
-                    <div class="comments-container" id="commentsList"></div>
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="section" style="text-align: center; border-top: 2px solid #e0e0e0; padding-top: 20px; margin-top: 40px;">
-                <button onclick="clearAllData()" class="secondary">🔄 Reset All</button>
-            </div>
+      <section id="home" class="tab-content active">
+        <div class="section">
+          <h2>Trip Overview</h2>
+          <div class="grid four">
+            <div class="detail-box"><label>Trip Name</label><input id="tripName" value="Nisswa Classic 2027"></div>
+            <div class="detail-box"><label>Location</label><input id="location" value="Nisswa, Minnesota"></div>
+            <div class="detail-box"><label>Start Date</label><input type="date" id="startDate"></div>
+            <div class="detail-box"><label>End Date</label><input type="date" id="endDate"></div>
+          </div>
         </div>
-    </div>
-
-    <!-- Firebase Scripts -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
-
-        // Your Firebase config
-        const firebaseConfig = {
-            apiKey: "AIzaSyCH0SfYJmZ8Xrm_Va3Gqu9OfxbPGWTYnaA",
-            authDomain: "nisswa-classic.firebaseapp.com",
-            databaseURL: "https://nisswa-classic-default-rtdb.firebaseio.com",
-            projectId: "nisswa-classic",
-            storageBucket: "nisswa-classic.firebasestorage.app",
-            messagingSenderId: "398640518080",
-            appId: "1:398640518080:web:c39291df7e19461fd62e25",
-            measurementId: "G-K89P8W35CZ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // Make db globally accessible
-        window.db = db;
-        window.ref = ref;
-        window.set = set;
-        window.push = push;
-        window.onValue = onValue;
-        window.remove = remove;
-        window.update = update;
-
-        // Update sync status
-        function updateSyncStatus() {
-            const status = document.getElementById('syncStatus');
-            status.textContent = '✅ Live Syncing';
-            status.classList.add('synced');
-        }
-
-        // Initialize listeners
-        setTimeout(updateSyncStatus, 1000);
-
-        // Listen to database changes
-        onValue(ref(db), () => {
-            console.log('Database updated, refreshing UI');
-            loadAllData();
-        });
-    </script>
-
-    <script>
-        // Global variables
-        let syncEnabled = true;
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                loadAllData();
-                renderTeams();
-                renderCourses();
-                renderRounds();
-                renderComments();
-                renderExpenses();
-                updatePlayerSelects();
-                updateCourseSelects();
-            }, 1000);
-        });
-
-        // ===== TAB SWITCHING =====
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        // ===== FIREBASE DATA FUNCTIONS =====
-        function saveToFirebase(path, data) {
-            if (!syncEnabled || !window.db) return;
-            return set(ref(window.db, path), data).catch(err => {
-                console.error('Firebase error:', err);
-                updateSyncStatus('error');
-            });
-        }
-
-        function pushToFirebase(path, data) {
-            if (!syncEnabled || !window.db) return;
-            return push(ref(window.db, path), data).catch(err => {
-                console.error('Firebase error:', err);
-            });
-        }
-
-        function deleteFromFirebase(path) {
-            if (!syncEnabled || !window.db) return;
-            return remove(ref(window.db, path)).catch(err => {
-                console.error('Firebase error:', err);
-            });
-        }
-
-        function updateInFirebase(path, data) {
-            if (!syncEnabled || !window.db) return;
-            return update(ref(window.db, path), data).catch(err => {
-                console.error('Firebase error:', err);
-            });
-        }
-
-        // ===== DATA MANAGEMENT =====
-        function loadAllData() {
-            onValue(ref(window.db, 'trip'), (snapshot) => {
-                if (snapshot.exists()) {
-                    const trip = snapshot.val();
-                    document.getElementById('tripName').value = trip.name || 'Nisswa Classic 2026';
-                    document.getElementById('location').value = trip.location || 'Nisswa, Minnesota';
-                    document.getElementById('startDate').value = trip.startDate || '';
-                    document.getElementById('endDate').value = trip.endDate || '';
-                    updateTripStats();
-                }
-            }, { onlyOnce: true });
-
-            onValue(ref(window.db, 'notes'), (snapshot) => {
-                document.getElementById('tripNotes').value = snapshot.val() || '';
-            }, { onlyOnce: true });
-
-            // Listen for real-time updates
-            onValue(ref(window.db, 'teams'), () => renderTeams());
-            onValue(ref(window.db, 'courses'), () => renderCourses());
-            onValue(ref(window.db, 'rounds'), () => renderRounds());
-            onValue(ref(window.db, 'matches'), () => { renderRounds(); updateTripStats(); });
-            onValue(ref(window.db, 'expenses'), () => { renderExpenses(); updateTripStats(); });
-            onValue(ref(window.db, 'comments'), () => renderComments());
-        }
-
-        function saveTripData() {
-            const trip = {
-                name: document.getElementById('tripName').value,
-                location: document.getElementById('location').value,
-                startDate: document.getElementById('startDate').value,
-                endDate: document.getElementById('endDate').value
-            };
-            saveToFirebase('trip', trip);
-            updateTripStats();
-        }
-
-        function saveNotes() {
-            saveToFirebase('notes', document.getElementById('tripNotes').value);
-            alert('Notes saved!');
-        }
-
-        document.getElementById('tripName').addEventListener('change', saveTripData);
-        document.getElementById('location').addEventListener('change', saveTripData);
-        document.getElementById('startDate').addEventListener('change', saveTripData);
-        document.getElementById('endDate').addEventListener('change', saveTripData);
-
-        // ===== PLAYERS & TEAMS =====
-        function addPlayer() {
-            const name = document.getElementById('playerName').value.trim();
-            const handicap = parseFloat(document.getElementById('playerHandicap').value);
-            const team = document.getElementById('playerTeam').value;
-
-            if (!name || isNaN(handicap)) {
-                alert('Please enter player name and handicap');
-                return;
-            }
-
-            pushToFirebase('teams', {
-                name: name,
-                handicap: handicap,
-                team: team
-            }).then(() => {
-                document.getElementById('playerName').value = '';
-                document.getElementById('playerHandicap').value = '';
-            });
-        }
-
-        function removePlayer(id) {
-            deleteFromFirebase(`teams/${id}`);
-        }
-
-        function renderTeams() {
-            const bluePlayers = [];
-            const redPlayers = [];
-
-            onValue(ref(window.db, 'teams'), (snapshot) => {
-                bluePlayers.length = 0;
-                redPlayers.length = 0;
-
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    Object.entries(data).forEach(([id, player]) => {
-                        if (player.team === 'blue') {
-                            bluePlayers.push({ id, ...player });
-                        } else {
-                            redPlayers.push({ id, ...player });
-                        }
-                    });
-                }
-
-                const blueList = document.getElementById('blueTeamList');
-                const redList = document.getElementById('redTeamList');
-
-                if (bluePlayers.length === 0) {
-                    blueList.innerHTML = '<li class="empty-state">No players yet</li>';
-                } else {
-                    blueList.innerHTML = bluePlayers.map(p => `
-                        <li class="team-player-item">
-                            <span class="player-name">${p.name}</span>
-                            <span class="player-handicap">HCP: ${p.handicap}</span>
-                            <button class="delete" onclick="removePlayer('${p.id}')">Delete</button>
-                        </li>
-                    `).join('');
-                }
-
-                if (redPlayers.length === 0) {
-                    redList.innerHTML = '<li class="empty-state">No players yet</li>';
-                } else {
-                    redList.innerHTML = redPlayers.map(p => `
-                        <li class="team-player-item">
-                            <span class="player-name">${p.name}</span>
-                            <span class="player-handicap">HCP: ${p.handicap}</span>
-                            <button class="delete" onclick="removePlayer('${p.id}')">Delete</button>
-                        </li>
-                    `).join('');
-                }
-            }, { onlyOnce: true });
-        }
-
-        function updatePlayerSelects() {
-            onValue(ref(window.db, 'teams'), (snapshot) => {
-                const expensePaidBySelect = document.getElementById('expensePaidBy');
-                let expenseOptions = '<option value="">Who paid?</option>';
-
-                if (snapshot.exists()) {
-                    Object.entries(snapshot.val()).forEach(([id, player]) => {
-                        expenseOptions += `<option value="${id}">${player.name}</option>`;
-                    });
-                }
-
-                expensePaidBySelect.innerHTML = expenseOptions;
-            }, { onlyOnce: true });
-        }
-
-        // ===== COURSES =====
-        function addCourse() {
-            const name = document.getElementById('courseName').value.trim();
-            const date = document.getElementById('courseDate').value.trim();
-            const time = document.getElementById('courseTime').value.trim();
-
-            if (!name || !date || !time) {
-                alert('Please fill in all course details');
-                return;
-            }
-
-            pushToFirebase('courses', {
-                name: name,
-                date: date,
-                time: time
-            }).then(() => {
-                document.getElementById('courseName').value = '';
-                document.getElementById('courseDate').value = '';
-                document.getElementById('courseTime').value = '';
-            });
-        }
-
-        function removeCourse(id) {
-            deleteFromFirebase(`courses/${id}`);
-        }
-
-        function renderCourses() {
-            onValue(ref(window.db, 'courses'), (snapshot) => {
-                const container = document.getElementById('coursesList');
-                let html = '';
-
-                if (snapshot.exists()) {
-                    Object.entries(snapshot.val()).forEach(([id, course]) => {
-                        html += `
-                            <li class="course-item">
-                                <div class="course-info">
-                                    <div class="course-name">${course.name}</div>
-                                    <div class="course-details">📅 ${course.date} • ⏰ ${course.time}</div>
-                                </div>
-                                <button class="delete" onclick="removeCourse('${id}')">Delete</button>
-                            </li>
-                        `;
-                    });
-                }
-
-                container.innerHTML = html || '<li class="empty-state">No courses scheduled yet.</li>';
-            }, { onlyOnce: true });
-        }
-
-        function updateCourseSelects() {
-            onValue(ref(window.db, 'courses'), (snapshot) => {
-                const courseSelect = document.getElementById('roundCourse');
-                let options = '<option value="">Select Course</option>';
-
-                if (snapshot.exists()) {
-                    Object.entries(snapshot.val()).forEach(([id, course]) => {
-                        options += `<option value="${id}">${course.name} - ${course.date}</option>`;
-                    });
-                }
-
-                courseSelect.innerHTML = options;
-            }, { onlyOnce: true });
-        }
-
-        // ===== ROUNDS & MATCH PLAY =====
-        function addRound() {
-            const roundName = document.getElementById('roundName').value.trim();
-            const courseId = document.getElementById('roundCourse').value;
-            const hasSkins = document.getElementById('hasSkins').checked;
-
-            if (!roundName || !courseId) {
-                alert('Please enter round name and select a course');
-                return;
-            }
-
-            onValue(ref(window.db, `courses/${courseId}`), (snapshot) => {
-                if (snapshot.exists()) {
-                    const course = snapshot.val();
-                    pushToFirebase('rounds', {
-                        name: roundName,
-                        courseId: courseId,
-                        courseName: course.name,
-                        hasSkins: hasSkins
-                    }).then(() => {
-                        document.getElementById('roundName').value = '';
-                        document.getElementById('roundCourse').value = '';
-                        document.getElementById('hasSkins').checked = true;
-                    });
-                }
-            }, { onlyOnce: true });
-        }
-
-        function removeRound(id) {
-            deleteFromFirebase(`rounds/${id}`);
-        }
-
-        function renderRounds() {
-            onValue(ref(window.db, 'rounds'), (roundsSnapshot) => {
-                const container = document.getElementById('roundsList');
-                let html = '';
-
-                if (!roundsSnapshot.exists()) {
-                    container.innerHTML = '<div class="empty-state">No rounds created yet.</div>';
-                    return;
-                }
-
-                onValue(ref(window.db, 'teams'), (teamsSnapshot) => {
-                    const players = [];
-                    if (teamsSnapshot.exists()) {
-                        Object.entries(teamsSnapshot.val()).forEach(([id, player]) => {
-                            players.push({ id, ...player });
-                        });
-                    }
-
-                    const playerOptions = players.map(p => `<option value="${p.id}">${p.name} (${p.team === 'blue' ? '🔵' : '🔴'}) HCP: ${p.handicap}</option>`).join('');
-
-                    Object.entries(roundsSnapshot.val()).forEach(([roundId, round]) => {
-                        onValue(ref(window.db, 'matches'), (matchesSnapshot) => {
-                            const matches = [];
-                            if (matchesSnapshot.exists()) {
-                                Object.entries(matchesSnapshot.val()).forEach(([matchId, match]) => {
-                                    if (match.roundId === roundId) {
-                                        matches.push({ id: matchId, ...match });
-                                    }
-                                });
-                            }
-
-                            let matchesHtml = '';
-                            if (matches.length > 0) {
-                                matchesHtml = `
-                                    <h4 style="margin-top: 20px; margin-bottom: 10px; color: #333;">Matches</h4>
-                                    ${matches.map(m => `
-                                        <div class="match-item">
-                                            <div class="match-players">
-                                                <span style="color: ${m.player1Team === 'blue' ? '#2c5aa0' : '#dc3545'}">🔵 ${m.player1Name}</span>
-                                                vs
-                                                <span style="color: ${m.player2Team === 'blue' ? '#2c5aa0' : '#dc3545'}">🔴 ${m.player2Name}</span>
-                                            </div>
-                                            <div class="match-result">
-                                                <span>${m.score1}</span>
-                                                <span>-</span>
-                                                <span>${m.score2}</span>
-                                                <span class="match-status complete">${m.winner === m.player1Id ? m.player1Name + ' wins' : (m.winner === m.player2Id ? m.player2Name + ' wins' : 'Tie')}</span>
-                                                ${m.hasSkins ? '<span style="color: #ffd700; font-weight: bold;">🏆 Skins</span>' : ''}
-                                                <button class="delete" onclick="removeMatch('${m.id}')">Delete</button>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                `;
-                            }
-
-                            html += `
-                                <div class="round-card">
-                                    <div class="round-header">
-                                        <div>
-                                            <div class="round-title">${round.name}</div>
-                                            <div style="font-size: 0.9em; color: #666; margin-top: 5px;">📍 ${round.courseName}</div>
-                                        </div>
-                                        <div style="display: flex; gap: 10px; align-items: center;">
-                                            ${round.hasSkins ? '<span class="skins-badge">🏆 Skins Game</span>' : '<span class="no-skins-badge">No Skins</span>'}
-                                            <button class="delete" onclick="removeRound('${roundId}')">Delete</button>
-                                        </div>
-                                    </div>
-
-                                    <h4 style="margin-top: 20px; margin-bottom: 10px; color: #333;">Add Match</h4>
-                                    <div class="input-group">
-                                        <select id="player1_${roundId}">
-                                            <option value="">Player 1</option>
-                                            ${playerOptions}
-                                        </select>
-                                        <select id="matchPlayer2_${roundId}">
-                                            <option value="">Player 2</option>
-                                            ${playerOptions}
-                                        </select>
-                                        <input type="number" id="matchScore1_${roundId}" placeholder="Score" min="0" max="150">
-                                        <input type="number" id="matchScore2_${roundId}" placeholder="Score" min="0" max="150">
-                                        <button onclick="saveMatchToRound('${roundId}')">Add Match</button>
-                                    </div>
-
-                                    ${matchesHtml}
-                                </div>
-                            `;
-
-                            container.innerHTML = html;
-                        }, { onlyOnce: true });
-                    });
-                }, { onlyOnce: true });
-            }, { onlyOnce: true });
-        }
-
-        function saveMatchToRound(roundId) {
-            const player1Id = document.getElementById(`player1_${roundId}`).value;
-            const player2Id = document.getElementById(`matchPlayer2_${roundId}`).value;
-            const score1 = parseInt(document.getElementById(`matchScore1_${roundId}`).value);
-            const score2 = parseInt(document.getElementById(`matchScore2_${roundId}`).value);
-
-            if (!player1Id || !player2Id || isNaN(score1) || isNaN(score2)) {
-                alert('Please select both players and enter valid scores');
-                return;
-            }
-
-            onValue(ref(window.db, `teams`), (snapshot) => {
-                const data = snapshot.val();
-                const p1 = data[player1Id];
-                const p2 = data[player2Id];
-
-                if (p1.team === p2.team) {
-                    alert('Players must be from different teams');
-                    return;
-                }
-
-                const winner = score1 < score2 ? player1Id : (score2 < score1 ? player2Id : null);
-
-                onValue(ref(window.db, `rounds/${roundId}`), (roundSnapshot) => {
-                    const round = roundSnapshot.val();
-                    pushToFirebase('matches', {
-                        roundId: roundId,
-                        player1Id: player1Id,
-                        player1Name: p1.name,
-                        player1Team: p1.team,
-                        player2Id: player2Id,
-                        player2Name: p2.name,
-                        player2Team: p2.team,
-                        score1: score1,
-                        score2: score2,
-                        winner: winner,
-                        hasSkins: round.hasSkins
-                    }).then(() => {
-                        document.getElementById(`matchScore1_${roundId}`).value = '';
-                        document.getElementById(`matchScore2_${roundId}`).value = '';
-                        document.getElementById(`matchPlayer2_${roundId}`).value = '';
-                    });
-                }, { onlyOnce: true });
-            }, { onlyOnce: true });
-        }
-
-        function removeMatch(id) {
-            deleteFromFirebase(`matches/${id}`);
-        }
-
-        // ===== EXPENSES =====
-        function addExpense() {
-            const category = document.getElementById('expenseCategory').value;
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-            const paidById = document.getElementById('expensePaidBy').value;
-
-            if (!category || isNaN(amount) || !paidById) {
-                alert('Please fill in all expense fields');
-                return;
-            }
-
-            onValue(ref(window.db, `teams/${paidById}`), (snapshot) => {
-                const paidByPlayer = snapshot.val();
-                pushToFirebase('expenses', {
-                    category: category,
-                    amount: amount,
-                    paidById: paidById,
-                    paidByName: paidByPlayer.name,
-                    timestamp: new Date().toLocaleString()
-                }).then(() => {
-                    document.getElementById('expenseAmount').value = '';
-                });
-            }, { onlyOnce: true });
-        }
-
-        function removeExpense(id) {
-            deleteFromFirebase(`expenses/${id}`);
-        }
-
-        function renderExpenses() {
-            onValue(ref(window.db, 'expenses'), (expensesSnapshot) => {
-                onValue(ref(window.db, 'teams'), (teamsSnapshot) => {
-                    const teams = teamsSnapshot.val() || {};
-                    const expenses = [];
-                    const container = document.getElementById('expensesList');
-
-                    if (expensesSnapshot.exists()) {
-                        Object.entries(expensesSnapshot.val()).forEach(([id, expense]) => {
-                            expenses.push({ id, ...expense });
-                        });
-                    }
-
-                    if (expenses.length === 0) {
-                        container.innerHTML = '<div class="empty-state">No expenses recorded yet.</div>';
-                        document.getElementById('totalExpenses').textContent = '$0.00';
-                        document.getElementById('perPersonExpense').textContent = '$0.00';
-                        document.getElementById('largestExpense').textContent = '$0.00';
-                        renderSettlements();
-                        return;
-                    }
-
-                    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-                    const playerCount = Object.keys(teams).length;
-                    const perPerson = playerCount > 0 ? totalExpenses / playerCount : 0;
-                    const largestExpense = Math.max(...expenses.map(e => e.amount));
-
-                    document.getElementById('totalExpenses').textContent = '$' + totalExpenses.toFixed(2);
-                    document.getElementById('perPersonExpense').textContent = '$' + perPerson.toFixed(2);
-                    document.getElementById('largestExpense').textContent = '$' + largestExpense.toFixed(2);
-
-                    container.innerHTML = expenses.map(e => `
-                        <div class="expense-item">
-                            <div class="expense-details">
-                                <div class="expense-category">${e.category}</div>
-                                <div class="expense-info">Paid by ${e.paidByName} • ${e.timestamp}</div>
-                            </div>
-                            <div class="expense-amount">$${e.amount.toFixed(2)}</div>
-                            <button class="delete" onclick="removeExpense('${e.id}')">Delete</button>
-                        </div>
-                    `).join('');
-
-                    renderSettlements();
-                }, { onlyOnce: true });
-            }, { onlyOnce: true });
-        }
-
-        function renderSettlements() {
-            onValue(ref(window.db, 'expenses'), (expensesSnapshot) => {
-                onValue(ref(window.db, 'teams'), (teamsSnapshot) => {
-                    const expenses = [];
-                    const teams = teamsSnapshot.val() || {};
-                    const settlementBox = document.getElementById('settlementBox');
-
-                    if (expensesSnapshot.exists()) {
-                        Object.entries(expensesSnapshot.val()).forEach(([id, expense]) => {
-                            expenses.push(expense);
-                        });
-                    }
-
-                    if (expenses.length === 0 || Object.keys(teams).length === 0) {
-                        settlementBox.innerHTML = '<div class="empty-state">Add expenses to calculate settlements</div>';
-                        return;
-                    }
-
-                    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-                    const perPerson = totalExpenses / Object.keys(teams).length;
-
-                    const balances = {};
-                    Object.entries(teams).forEach(([id, player]) => {
-                        balances[id] = {
-                            name: player.name,
-                            paid: 0,
-                            owes: perPerson,
-                            balance: 0
-                        };
-                    });
-
-                    expenses.forEach(e => {
-                        if (balances[e.paidById]) {
-                            balances[e.paidById].paid += e.amount;
-                        }
-                    });
-
-                    Object.keys(balances).forEach(id => {
-                        balances[id].balance = balances[id].paid - balances[id].owes;
-                    });
-
-                    const settlements = [];
-                    const debtors = Object.keys(balances).filter(id => balances[id].balance < 0);
-                    const creditors = Object.keys(balances).filter(id => balances[id].balance > 0);
-
-                    debtors.forEach(debtorId => {
-                        let debt = Math.abs(balances[debtorId].balance);
-                        creditors.forEach(creditorId => {
-                            if (debt > 0 && balances[creditorId].balance > 0) {
-                                const settlement = Math.min(debt, balances[creditorId].balance);
-                                settlements.push({
-                                    from: balances[debtorId].name,
-                                    to: balances[creditorId].name,
-                                    amount: settlement
-                                });
-                                debt -= settlement;
-                                balances[creditorId].balance -= settlement;
-                            }
-                        });
-                    });
-
-                    if (settlements.length === 0) {
-                        settlementBox.innerHTML = '<div class="settlement-item">✅ Everyone is settled up! All expenses are shared evenly.</div>';
-                    } else {
-                        settlementBox.innerHTML = settlements.map(s => `
-                            <div class="settlement-item">
-                                💸 ${s.from} pays ${s.to}: <span class="settlement-amount">$${s.amount.toFixed(2)}</span>
-                            </div>
-                        `).join('');
-                    }
-                }, { onlyOnce: true });
-            }, { onlyOnce: true });
-        }
-
-        // ===== COMMENTS =====
-        function addComment() {
-            const author = document.getElementById('commentAuthor').value.trim();
-            const text = document.getElementById('commentText').value.trim();
-
-            if (!author || !text) {
-                alert('Please enter your name and a comment');
-                return;
-            }
-
-            pushToFirebase('comments', {
-                author: author,
-                text: text,
-                timestamp: new Date().toLocaleString()
-            }).then(() => {
-                document.getElementById('commentAuthor').value = '';
-                document.getElementById('commentText').value = '';
-            });
-        }
-
-        function renderComments() {
-            onValue(ref(window.db, 'comments'), (snapshot) => {
-                const container = document.getElementById('commentsList');
-                const comments = [];
-
-                if (snapshot.exists()) {
-                    Object.entries(snapshot.val()).forEach(([id, comment]) => {
-                        comments.push(comment);
-                    });
-                }
-
-                if (comments.length === 0) {
-                    container.innerHTML = '<div class="empty-state">No comments yet. Be the first to share!</div>';
-                    return;
-                }
-
-                container.innerHTML = comments.reverse().map(c => `
-                    <div class="comment-item">
-                        <div class="comment-author">${c.author}</div>
-                        <div class="comment-text">${c.text}</div>
-                        <div class="comment-time">${c.timestamp}</div>
-                    </div>
-                `).join('');
-            });
-        }
-
-        // ===== TRIP STATS =====
-        function updateTripStats() {
-            onValue(ref(window.db, 'teams'), (teamsSnapshot) => {
-                onValue(ref(window.db, 'rounds'), (roundsSnapshot) => {
-                    onValue(ref(window.db, 'matches'), (matchesSnapshot) => {
-                        onValue(ref(window.db, 'expenses'), (expensesSnapshot) => {
-                            const teams = teamsSnapshot.val() || {};
-                            const rounds = roundsSnapshot.val() || {};
-                            const matches = matchesSnapshot.val() || {};
-                            const expenses = expensesSnapshot.val() || {};
-
-                            const bluePlayers = Object.values(teams).filter(p => p.team === 'blue').length;
-                            const redPlayers = Object.values(teams).filter(p => p.team === 'red').length;
-
-                            const blueWins = Object.values(matches).filter(m => 
-                                (m.winner === m.player1Id && m.player1Team === 'blue') ||
-                                (m.winner === m.player2Id && m.player2Team === 'blue')
-                            ).length;
-
-                            const redWins = Object.values(matches).filter(m =>
-                                (m.winner === m.player1Id && m.player1Team === 'red') ||
-                                (m.winner === m.player2Id && m.player2Team === 'red')
-                            ).length;
-
-                            const totalExpenses = Object.values(expenses).reduce((sum, e) => sum + e.amount, 0);
-                            const skinsRounds = Object.values(rounds).filter(r => r.hasSkins).length;
-
-                            const statsContainer = document.getElementById('tripStats');
-                            statsContainer.innerHTML = `
-                                <div class="stat-card">
-                                    <div class="stat-value">${bluePlayers}</div>
-                                    <div class="stat-label">🔵 Blue Team</div>
-                                </div>
-                                <div class="stat-card team-red">
-                                    <div class="stat-value">${redPlayers}</div>
-                                    <div class="stat-label">🔴 Red Team</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${blueWins}</div>
-                                    <div class="stat-label">Blue Wins</div>
-                                </div>
-                                <div class="stat-card team-red">
-                                    <div class="stat-value">${redWins}</div>
-                                    <div class="stat-label">Red Wins</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${Object.keys(rounds).length}</div>
-                                    <div class="stat-label">Rounds</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${Object.keys(matches).length}</div>
-                                    <div class="stat-label">Matches Played</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${skinsRounds}</div>
-                                    <div class="stat-label">🏆 Skins Rounds</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">$${totalExpenses.toFixed(2)}</div>
-                                    <div class="stat-label">Total Expenses</div>
-                                </div>
-                            `;
-                        }, { onlyOnce: true });
-                    }, { onlyOnce: true });
-                }, { onlyOnce: true });
-            }, { onlyOnce: true });
-        }
-
-        // ===== UTILITIES =====
-        function clearAllData() {
-            if (confirm('Are you sure? This will delete ALL data.')) {
-                const paths = ['trip', 'notes', 'teams', 'courses', 'rounds', 'matches', 'expenses', 'comments'];
-                paths.forEach(path => {
-                    deleteFromFirebase(path);
-                });
-                location.reload();
-            }
-        }
-
-        function updateSyncStatus(status = 'syncing') {
-            const indicator = document.getElementById('syncStatus');
-            if (status === 'syncing') {
-                indicator.textContent = '🔄 Syncing...';
-                indicator.classList.remove('synced');
-            } else if (status === 'synced') {
-                indicator.textContent = '✅ Live Syncing';
-                indicator.classList.add('synced');
-            } else if (status === 'error') {
-                indicator.textContent = '❌ Connection Error';
-                indicator.classList.remove('synced');
-            }
-        }
-    </script>
+        <div class="section">
+          <h2>Team Cup</h2>
+          <div class="grid four" id="homeStats"></div>
+        </div>
+        <div class="section">
+          <h2>Live Matches</h2>
+          <div id="currentMatches"></div>
+        </div>
+        <div class="section">
+          <h2>Trip Notes</h2>
+          <textarea id="tripNotes" rows="5" placeholder="Notes, house rules, reminders..."></textarea><br><br>
+          <button onclick="saveNotes()">Save Notes</button>
+        </div>
+      </section>
+
+      <section id="itinerary" class="tab-content">
+        <div class="section">
+          <h2>Courses & Itinerary</h2>
+          <div class="input-row">
+            <div><label>Course Name</label><input id="courseName" placeholder="The Pines - Lakes/Woods"></div>
+            <div><label>Date</label><input id="courseDate" placeholder="Friday, June 18"></div>
+            <div><label>Tee Time</label><input id="courseTime" placeholder="8:30 AM"></div>
+            <button onclick="addCourse()">Add Course</button>
+          </div>
+          <div id="coursesList"></div>
+        </div>
+        <div class="section">
+          <h2>Rounds</h2>
+          <div class="input-row">
+            <div><label>Round Name</label><input id="roundName" placeholder="Friday Morning"></div>
+            <div><label>Course</label><select id="roundCourse"><option value="">Select course</option></select></div>
+            <div><label>Format</label><select id="roundFormat"><option value="stroke">Stroke Play</option><option value="match">Match Play</option><option value="scramble">Scramble</option></select></div>
+            <div><label>Skins?</label><select id="roundSkins"><option value="true">Yes</option><option value="false">No</option></select></div>
+            <button onclick="addRound()">Create Round</button>
+          </div>
+          <div id="roundsList"></div>
+        </div>
+      </section>
+
+      <section id="teams" class="tab-content">
+        <div class="section">
+          <h2>Players & Teams</h2>
+          <div class="input-row">
+            <div><label>Player Name</label><input id="playerName" placeholder="Name"></div>
+            <div><label>Handicap</label><input id="playerHandicap" type="number" step="0.1" min="0" max="54" placeholder="12.4"></div>
+            <div><label>Team</label><select id="playerTeam"><option value="blue">Blue Team</option><option value="red">Red Team</option></select></div>
+            <button onclick="addPlayer()">Add Player</button>
+          </div>
+          <div class="grid two">
+            <div class="team-box"><h3>🔵 Blue Team</h3><div id="blueTeamList"></div></div>
+            <div class="team-box red"><h3>🔴 Red Team</h3><div id="redTeamList"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scoring" class="tab-content">
+        <div class="section">
+          <h2>Live Scoring</h2>
+          <div class="input-row">
+            <div><label>Select Round</label><select id="scoreRound" onchange="renderScorecard()"><option value="">Select round</option></select></div>
+          </div>
+          <div id="scorecard"></div>
+        </div>
+      </section>
+
+      <section id="leaderboard" class="tab-content">
+        <div class="section"><h2>Leaderboards</h2><div id="leaderboards"></div></div>
+      </section>
+
+      <section id="sidegames" class="tab-content">
+        <div class="section"><h2>Skins</h2><div id="skinsBoard"></div></div>
+      </section>
+
+      <section id="expenses" class="tab-content">
+        <div class="section">
+          <h2>Expense Tracking & Settlement</h2>
+          <div class="input-row">
+            <div><label>Category</label><select id="expenseCategory"><option>Greens Fees</option><option>Carts</option><option>Food & Drinks</option><option>Lodging</option><option>Transportation</option><option>Other</option></select></div>
+            <div><label>Amount</label><input type="number" id="expenseAmount" min="0" step="0.01" placeholder="100.00"></div>
+            <div><label>Paid By</label><select id="expensePaidBy"><option value="">Who paid?</option></select></div>
+            <button onclick="addExpense()">Add Expense</button>
+          </div>
+          <div class="grid three" id="expenseStats"></div><br>
+          <div id="expensesList"></div>
+          <h3>Settlement Summary</h3>
+          <div class="settlement-box" id="settlementBox"></div>
+        </div>
+      </section>
+
+      <section id="chat" class="tab-content">
+        <div class="section">
+          <h2>Group Chat</h2>
+          <div class="input-row"><div><label>Your Name</label><input id="commentAuthor"></div></div>
+          <textarea id="commentText" rows="4" placeholder="Trash talk encouraged..."></textarea><br><br>
+          <button onclick="addComment()">Post Comment</button>
+          <h3>Recent Comments</h3>
+          <div id="commentsList"></div>
+        </div>
+      </section>
+
+      <div class="section" style="text-align:center;border-top:1px solid #e3e8ef;padding-top:20px;">
+        <button class="secondary" onclick="clearAllData()">Reset All Data</button>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCH0SfYJmZ8Xrm_Va3Gqu9OfxbPGWTYnaA",
+      authDomain: "nisswa-classic.firebaseapp.com",
+      databaseURL: "https://nisswa-classic-default-rtdb.firebaseio.com",
+      projectId: "nisswa-classic",
+      storageBucket: "nisswa-classic.firebasestorage.app",
+      messagingSenderId: "398640518080",
+      appId: "1:398640518080:web:c39291df7e19461fd62e25",
+      measurementId: "G-K89P8W35CZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    Object.assign(window, { db, ref, set, push, onValue, remove, update });
+    window.startFirebaseListeners();
+  </script>
+
+  <script>
+    const state = { trip:{}, notes:'', teams:{}, courses:{}, rounds:{}, scores:{}, expenses:{}, comments:{} };
+    const holeCount = 18;
+    const defaultPars = [4,4,3,5,4,4,3,5,4,4,4,3,5,4,4,3,5,4];
+    const defaultHcp = [7,3,17,1,11,5,15,9,13,8,4,18,2,12,6,16,10,14];
+
+    function $(id){ return document.getElementById(id); }
+    function dollars(v){ return '$' + Number(v || 0).toFixed(2); }
+    function playersArray(){ return Object.entries(state.teams || {}).map(([id,p]) => ({id,...p})); }
+    function roundsArray(){ return Object.entries(state.rounds || {}).map(([id,r]) => ({id,...r})); }
+    function scorePath(roundId, playerId, hole){ return `scores/${roundId}/${playerId}/h${hole}`; }
+    function setStatus(text, cls=''){ const s=$('syncStatus'); s.textContent=text; s.className='sync ' + cls; }
+
+    document.addEventListener('click', e => {
+      if (e.target.classList.contains('tab-button')) switchTab(e.target.dataset.tab, e.target);
+    });
+    ['tripName','location','startDate','endDate'].forEach(id => document.addEventListener('change', e => { if(e.target.id===id) saveTripData(); }));
+
+    function switchTab(tabName, btn){
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+      $(tabName).classList.add('active');
+      if(btn) btn.classList.add('active');
+      if(tabName === 'scoring') renderScorecard();
+      if(tabName === 'leaderboard') renderLeaderboards();
+      if(tabName === 'sidegames') renderSkinsBoard();
+    }
+
+    window.startFirebaseListeners = function(){
+      if(!window.db){ setStatus('❌ Firebase not loaded','err'); return; }
+      setStatus('🔄 Connecting...');
+      const bind = (path, key, render) => onValue(ref(db, path), snap => {
+        state[key] = snap.val() || (key === 'notes' ? '' : {});
+        setStatus('✅ Live Syncing','ok');
+        renderAll(render);
+      }, err => { console.error(err); setStatus('❌ Connection Error','err'); });
+      bind('trip','trip');
+      bind('notes','notes');
+      bind('teams','teams');
+      bind('courses','courses');
+      bind('rounds','rounds');
+      bind('scores','scores');
+      bind('expenses','expenses');
+      bind('comments','comments');
+    }
+
+    function renderAll(){
+      renderTrip(); renderStats(); renderTeams(); renderCourses(); renderRounds(); renderSelects();
+      renderScorecard(); renderLeaderboards(); renderSkinsBoard(); renderExpenses(); renderComments(); renderCurrentMatches();
+    }
+
+    function write(path, data){ return set(ref(db, path), data); }
+    function add(path, data){ return push(ref(db, path), data); }
+    function del(path){ return remove(ref(db, path)); }
+    function patch(path, data){ return update(ref(db, path), data); }
+
+    function saveTripData(){ write('trip', { name:$('tripName').value, location:$('location').value, startDate:$('startDate').value, endDate:$('endDate').value }); }
+    function saveNotes(){ write('notes', $('tripNotes').value); alert('Notes saved.'); }
+    window.saveNotes = saveNotes;
+
+    function renderTrip(){
+      const t = state.trip || {};
+      $('tripName').value = t.name || $('tripName').value || 'Nisswa Classic 2027';
+      $('location').value = t.location || $('location').value || 'Nisswa, Minnesota';
+      $('startDate').value = t.startDate || '';
+      $('endDate').value = t.endDate || '';
+      $('tripNotes').value = state.notes || '';
+      $('siteTitle').textContent = '⛳ ' + ($('tripName').value || 'Nisswa Classic');
+      document.title = ($('tripName').value || 'Nisswa Classic') + ' - Tournament Central';
+    }
+
+    function addPlayer(){
+      const name=$('playerName').value.trim(), handicap=parseFloat($('playerHandicap').value), team=$('playerTeam').value;
+      if(!name || Number.isNaN(handicap)) return alert('Enter player name and handicap.');
+      add('teams', {name, handicap, team}).then(()=>{ $('playerName').value=''; $('playerHandicap').value=''; });
+    }
+    function removePlayer(id){ if(confirm('Delete this player?')) del(`teams/${id}`); }
+    window.addPlayer=addPlayer; window.removePlayer=removePlayer;
+
+    function renderTeams(){
+      const blue = playersArray().filter(p=>p.team==='blue').sort((a,b)=>a.name.localeCompare(b.name));
+      const red = playersArray().filter(p=>p.team==='red').sort((a,b)=>a.name.localeCompare(b.name));
+      const item = p => `<div class="player-item"><div><b>${escapeHtml(p.name)}</b><br><span class="mini">Handicap: ${p.handicap}</span></div><button class="delete" onclick="removePlayer('${p.id}')">Delete</button></div>`;
+      $('blueTeamList').innerHTML = blue.length ? blue.map(item).join('') : '<div class="empty">No blue players yet.</div>';
+      $('redTeamList').innerHTML = red.length ? red.map(item).join('') : '<div class="empty">No red players yet.</div>';
+    }
+
+    function addCourse(){
+      const name=$('courseName').value.trim(), date=$('courseDate').value.trim(), time=$('courseTime').value.trim();
+      if(!name || !date || !time) return alert('Fill in course, date, and tee time.');
+      add('courses', {name,date,time, pars: defaultPars, handicapIndexes: defaultHcp}).then(()=>{ $('courseName').value=''; $('courseDate').value=''; $('courseTime').value=''; });
+    }
+    function removeCourse(id){ if(confirm('Delete this course?')) del(`courses/${id}`); }
+    window.addCourse=addCourse; window.removeCourse=removeCourse;
+
+    function renderCourses(){
+      const courses = Object.entries(state.courses || {});
+      $('coursesList').innerHTML = courses.length ? courses.map(([id,c]) => `<div class="course-item"><div><b>${escapeHtml(c.name)}</b><br><span class="mini">📅 ${escapeHtml(c.date)} • ⏰ ${escapeHtml(c.time)}</span></div><button class="delete" onclick="removeCourse('${id}')">Delete</button></div>`).join('') : '<div class="empty">No courses scheduled yet.</div>';
+    }
+
+    function addRound(){
+      const name=$('roundName').value.trim(), courseId=$('roundCourse').value;
+      if(!name || !courseId) return alert('Enter round name and select a course.');
+      const course = state.courses[courseId];
+      add('rounds', { name, courseId, courseName: course.name, format:$('roundFormat').value, hasSkins:$('roundSkins').value==='true', createdAt: Date.now() }).then(()=>{ $('roundName').value=''; $('roundCourse').value=''; });
+    }
+    function removeRound(id){ if(confirm('Delete round and scores for this round?')) { del(`rounds/${id}`); del(`scores/${id}`); } }
+    window.addRound=addRound; window.removeRound=removeRound;
+
+    function renderRounds(){
+      const rounds = roundsArray().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+      $('roundsList').innerHTML = rounds.length ? rounds.map(r => `<div class="round-item"><div><b>${escapeHtml(r.name)}</b> <span class="pill">${escapeHtml(r.format || 'stroke')}</span> ${r.hasSkins ? '<span class="pill">Skins</span>' : ''}<br><span class="mini">📍 ${escapeHtml(r.courseName || '')}</span></div><button class="delete" onclick="removeRound('${r.id}')">Delete</button></div>`).join('') : '<div class="empty">No rounds created yet.</div>';
+    }
+
+    function renderSelects(){
+      const courseOptions = ['<option value="">Select course</option>'].concat(Object.entries(state.courses||{}).map(([id,c])=>`<option value="${id}">${escapeHtml(c.name)} - ${escapeHtml(c.date||'')}</option>`));
+      $('roundCourse').innerHTML = courseOptions.join('');
+      const selectedRound = $('scoreRound').value;
+      $('scoreRound').innerHTML = ['<option value="">Select round</option>'].concat(roundsArray().map(r=>`<option value="${r.id}">${escapeHtml(r.name)} - ${escapeHtml(r.courseName||'')}</option>`)).join('');
+      if(state.rounds[selectedRound]) $('scoreRound').value = selectedRound;
+      $('expensePaidBy').innerHTML = ['<option value="">Who paid?</option>'].concat(playersArray().map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`)).join('');
+    }
+
+    function strokesForHole(player, holeIndex){
+      const hcp = Math.round(Number(player.handicap || 0));
+      const hcpIndex = defaultHcp[holeIndex-1];
+      let strokes = Math.floor(hcp / 18);
+      if((hcp % 18) >= hcpIndex) strokes += 1;
+      return strokes;
+    }
+    function getScore(roundId, playerId, hole){ return Number((((state.scores||{})[roundId]||{})[playerId]||{})[`h${hole}`] || 0); }
+    function setScore(roundId, playerId, hole, value){
+      if(value === '') return del(scorePath(roundId, playerId, hole));
+      const n = parseInt(value,10); if(Number.isNaN(n) || n < 1 || n > 15) return;
+      write(scorePath(roundId, playerId, hole), n);
+    }
+    window.setScore=setScore;
+
+    function playerTotals(roundId, player){
+      let gross=0, net=0, holes=0;
+      for(let h=1; h<=holeCount; h++){
+        const s = getScore(roundId, player.id, h);
+        if(s>0){ gross += s; net += s - strokesForHole(player,h); holes++; }
+      }
+      return {gross, net, holes};
+    }
+
+    function renderScorecard(){
+      const roundId = $('scoreRound').value;
+      const players = playersArray().sort((a,b)=> a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
+      if(!roundId){ $('scorecard').innerHTML = '<div class="empty">Select a round to enter live scores.</div>'; return; }
+      if(players.length===0){ $('scorecard').innerHTML = '<div class="empty">Add players before scoring.</div>'; return; }
+      const round = state.rounds[roundId];
+      const header = Array.from({length:holeCount},(_,i)=>`<th>${i+1}<br><span class="mini">Par ${defaultPars[i]} • HCP ${defaultHcp[i]}</span></th>`).join('');
+      const rows = players.map(p => {
+        const totals = playerTotals(roundId,p);
+        const cells = Array.from({length:holeCount},(_,i)=>{
+          const h=i+1, val=getScore(roundId,p.id,h) || '';
+          const stroke = strokesForHole(p,h);
+          return `<td><input class="score-input" type="number" min="1" max="15" value="${val}" onchange="setScore('${roundId}','${p.id}',${h},this.value)"><div class="mini">${stroke ? 'net -'+stroke : '&nbsp;'}</div></td>`;
+        }).join('');
+        return `<tr><td><b>${escapeHtml(p.name)}</b><br><span class="pill ${p.team}">${p.team==='blue'?'Blue':'Red'}</span> <span class="mini">HCP ${p.handicap}</span></td>${cells}<td class="gross">${totals.gross || '-'}</td><td class="net">${totals.net || '-'}</td><td>${totals.holes}/18</td></tr>`;
+      }).join('');
+      $('scorecard').innerHTML = `<h3>${escapeHtml(round.name)} — ${escapeHtml(round.courseName || '')}</h3><div class="scorecard-wrap"><table><thead><tr><th>Player</th>${header}<th>Gross</th><th>Net</th><th>Thru</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+
+    function roundLeaderboard(roundId){
+      return playersArray().map(p => ({...p, ...playerTotals(roundId,p)})).sort((a,b)=> (b.holes-a.holes) || (a.net-b.net) || (a.gross-b.gross));
+    }
+
+    function renderLeaderboards(){
+      const rounds = roundsArray();
+      if(rounds.length===0){ $('leaderboards').innerHTML='<div class="empty">Create rounds to see leaderboards.</div>'; return; }
+      const teamTotals = calculateTeamCup();
+      const overall = playersArray().map(p => {
+        let gross=0, net=0, holes=0;
+        rounds.forEach(r => { const t=playerTotals(r.id,p); gross+=t.gross; net+=t.net; holes+=t.holes; });
+        return {...p,gross,net,holes};
+      }).filter(p=>p.holes>0).sort((a,b)=>a.net-b.net);
+      const overallHtml = leaderboardTable(overall, 'Overall Net Leaderboard');
+      const roundHtml = rounds.map(r => leaderboardTable(roundLeaderboard(r.id).filter(p=>p.holes>0), `${escapeHtml(r.name)} Leaderboard`)).join('');
+      $('leaderboards').innerHTML = `<div class="grid two"><div class="stat-card"><div class="stat-value">${teamTotals.blue}</div><div class="stat-label">Blue Team Points</div></div><div class="stat-card red"><div class="stat-value">${teamTotals.red}</div><div class="stat-label">Red Team Points</div></div></div><br>${overallHtml}${roundHtml}`;
+    }
+
+    function leaderboardTable(rows, title){
+      if(!rows.length) return `<h3>${title}</h3><div class="empty">No scores yet.</div>`;
+      return `<h3>${title}</h3><div class="scorecard-wrap"><table><thead><tr><th>Player</th><th>Team</th><th>Gross</th><th>Net</th><th>Thru</th></tr></thead><tbody>${rows.map((p,i)=>`<tr><td>${i===0?'🏆 ':''}${escapeHtml(p.name)}</td><td><span class="pill ${p.team}">${p.team}</span></td><td>${p.gross}</td><td class="net">${p.net}</td><td>${p.holes}</td></tr>`).join('')}</tbody></table></div>`;
+    }
+
+    function renderSkinsBoard(){
+      const rounds = roundsArray().filter(r=>r.hasSkins);
+      if(!rounds.length){ $('skinsBoard').innerHTML='<div class="empty">No skins rounds yet.</div>'; return; }
+      $('skinsBoard').innerHTML = rounds.map(r => {
+        const skins = calculateSkins(r.id);
+        return `<h3>${escapeHtml(r.name)}</h3><div class="scorecard-wrap"><table><thead><tr><th>Hole</th><th>Winner</th><th>Net Score</th><th>Status</th></tr></thead><tbody>${skins.map(s=>`<tr class="${s.winner?'skin':''}"><td>${s.hole}</td><td>${s.winner ? escapeHtml(s.winner.name) : '-'}</td><td>${s.winningScore ?? '-'}</td><td>${s.status}</td></tr>`).join('')}</tbody></table></div>`;
+      }).join('');
+    }
+
+    function calculateSkins(roundId){
+      const players = playersArray();
+      return Array.from({length:holeCount},(_,i)=>{
+        const h=i+1;
+        const scored = players.map(p => { const gross=getScore(roundId,p.id,h); return gross ? {player:p, net:gross-strokesForHole(p,h)} : null; }).filter(Boolean);
+        if(!scored.length) return {hole:h, winner:null, winningScore:null, status:'No scores'};
+        const low = Math.min(...scored.map(s=>s.net));
+        const winners = scored.filter(s=>s.net===low);
+        if(winners.length===1) return {hole:h, winner:winners[0].player, winningScore:low, status:'Skin won'};
+        return {hole:h, winner:null, winningScore:low, status:'Tie - carries/cancelled'};
+      });
+    }
+
+    function calculateTeamCup(){
+      let blue = 0, red = 0;
+      roundsArray().forEach(r => {
+        const blueNet = playersArray().filter(p=>p.team==='blue').reduce((sum,p)=>sum+playerTotals(r.id,p).net,0);
+        const redNet = playersArray().filter(p=>p.team==='red').reduce((sum,p)=>sum+playerTotals(r.id,p).net,0);
+        const blueHoles = playersArray().filter(p=>p.team==='blue').reduce((sum,p)=>sum+playerTotals(r.id,p).holes,0);
+        const redHoles = playersArray().filter(p=>p.team==='red').reduce((sum,p)=>sum+playerTotals(r.id,p).holes,0);
+        if(blueHoles || redHoles){ if(blueNet < redNet) blue += 1; else if(redNet < blueNet) red += 1; else { blue += .5; red += .5; } }
+      });
+      return { blue, red };
+    }
+
+    function renderStats(){
+      const cup=calculateTeamCup();
+      const p=playersArray(); const rounds=roundsArray();
+      $('homeStats').innerHTML = `<div class="stat-card"><div class="stat-value">${cup.blue}</div><div class="stat-label">Blue Points</div></div><div class="stat-card red"><div class="stat-value">${cup.red}</div><div class="stat-label">Red Points</div></div><div class="stat-card"><div class="stat-value">${p.length}</div><div class="stat-label">Players</div></div><div class="stat-card"><div class="stat-value">${rounds.length}</div><div class="stat-label">Rounds</div></div>`;
+    }
+
+    function renderCurrentMatches(){
+      const rounds = roundsArray();
+      const lines = rounds.map(r => {
+        const leaders = roundLeaderboard(r.id).filter(p=>p.holes>0).slice(0,3);
+        if(!leaders.length) return '';
+        return `<div class="card"><div class="leader">${escapeHtml(r.name)}</div>${leaders.map((p,i)=>`<div>${i+1}. <b>${escapeHtml(p.name)}</b> <span class="pill ${p.team}">${p.team}</span> Net ${p.net}, Thru ${p.holes}</div>`).join('')}</div>`;
+      }).filter(Boolean);
+      $('currentMatches').innerHTML = lines.length ? `<div class="grid three">${lines.join('')}</div>` : '<div class="empty">No live scores entered yet.</div>';
+    }
+
+    function addExpense(){
+      const category=$('expenseCategory').value, amount=parseFloat($('expenseAmount').value), paidById=$('expensePaidBy').value;
+      if(!category || Number.isNaN(amount) || !paidById) return alert('Fill in all expense fields.');
+      add('expenses', {category, amount, paidById, paidByName: state.teams[paidById]?.name || 'Unknown', timestamp: new Date().toLocaleString()}).then(()=>$('expenseAmount').value='');
+    }
+    function removeExpense(id){ del(`expenses/${id}`); }
+    window.addExpense=addExpense; window.removeExpense=removeExpense;
+
+    function renderExpenses(){
+      const expenses = Object.entries(state.expenses||{}).map(([id,e])=>({id,...e}));
+      const total = expenses.reduce((s,e)=>s+Number(e.amount||0),0);
+      const playerCount = playersArray().length;
+      $('expenseStats').innerHTML = `<div class="stat-card"><div class="stat-value">${dollars(total)}</div><div class="stat-label">Total</div></div><div class="stat-card"><div class="stat-value">${dollars(playerCount ? total/playerCount : 0)}</div><div class="stat-label">Per Person</div></div><div class="stat-card"><div class="stat-value">${dollars(expenses.length ? Math.max(...expenses.map(e=>Number(e.amount||0))) : 0)}</div><div class="stat-label">Largest</div></div>`;
+      $('expensesList').innerHTML = expenses.length ? expenses.map(e=>`<div class="expense-item"><div><b>${escapeHtml(e.category)}</b><br><span class="mini">Paid by ${escapeHtml(e.paidByName)} • ${escapeHtml(e.timestamp || '')}</span></div><div><b>${dollars(e.amount)}</b></div><button class="delete" onclick="removeExpense('${e.id}')">Delete</button></div>`).join('') : '<div class="empty">No expenses recorded.</div>';
+      renderSettlements(expenses);
+    }
+
+    function renderSettlements(expenses){
+      const players = playersArray();
+      if(!expenses.length || !players.length){ $('settlementBox').innerHTML='<div class="empty">Add expenses and players to calculate settlements.</div>'; return; }
+      const total = expenses.reduce((s,e)=>s+Number(e.amount||0),0), share=total/players.length;
+      const balances = {}; players.forEach(p=>balances[p.id]={name:p.name,balance:-share});
+      expenses.forEach(e=>{ if(balances[e.paidById]) balances[e.paidById].balance += Number(e.amount||0); });
+      const debtors=Object.values(balances).filter(b=>b.balance < -0.01).sort((a,b)=>a.balance-b.balance);
+      const creditors=Object.values(balances).filter(b=>b.balance > 0.01).sort((a,b)=>b.balance-a.balance);
+      const settlements=[];
+      debtors.forEach(d=>{ let debt=-d.balance; creditors.forEach(c=>{ if(debt>0.01 && c.balance>0.01){ const amt=Math.min(debt,c.balance); settlements.push(`${escapeHtml(d.name)} pays ${escapeHtml(c.name)}: <b>${dollars(amt)}</b>`); debt-=amt; c.balance-=amt; } }); });
+      $('settlementBox').innerHTML = settlements.length ? settlements.map(s=>`<div>${s}</div>`).join('') : '✅ Everyone is settled up.';
+    }
+
+    function addComment(){
+      const author=$('commentAuthor').value.trim(), text=$('commentText').value.trim();
+      if(!author || !text) return alert('Enter your name and comment.');
+      add('comments', {author,text,timestamp:new Date().toLocaleString()}).then(()=>$('commentText').value='');
+    }
+    window.addComment=addComment;
+
+    function renderComments(){
+      const comments = Object.values(state.comments||{}).reverse();
+      $('commentsList').innerHTML = comments.length ? comments.map(c=>`<div class="comment-item"><b>${escapeHtml(c.author)}</b><div>${escapeHtml(c.text)}</div><div class="mini">${escapeHtml(c.timestamp || '')}</div></div>`).join('') : '<div class="empty">No comments yet.</div>';
+    }
+
+    function clearAllData(){
+      if(confirm('Delete all tournament data?')) ['trip','notes','teams','courses','rounds','scores','expenses','comments'].forEach(path=>del(path));
+    }
+    window.clearAllData=clearAllData;
+
+    function escapeHtml(value){
+      return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+    }
+  </script>
 </body>
 </html>
